@@ -1,27 +1,32 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
+
 require("dotenv/config");
 
 // ╭──────────────────────────────────────────────────────────╮
 // │                   Conectar ao mongoDB                    │
 // ╰──────────────────────────────────────────────────────────╯
 
-var cors = require("cors");
 require("mongoose").connect(
-    `mongodb+srv://matheus-santiago:${process.env["PASSWORD"]}@cluster0.ooxkaen.mongodb.net/?retryWrites=true&w=majority`,
-    { useNewUrlParser: true, useUnifiedTopology: true }
+  `mongodb+srv://matheus-santiago:${process.env["PASSWORD"]}@cluster0.ooxkaen.mongodb.net/?retryWrites=true&w=majority`,
+  { useNewUrlParser: true, useUnifiedTopology: true }
 );
 
 // ╭──────────────────────────────────────────────────────────╮
 // │                         Express                          │
 // ╰──────────────────────────────────────────────────────────╯
 
-const app = express();
+const app = express()
+  .use(bodyParser.json())
+  .use(bodyParser.urlencoded({ extended: true }))
+  .use(cors());
+
 const RankingController = require("./controllers/RankingController");
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
 
 app.post("/ranking", RankingController.adicionarRanking);
+app.get("/ranking", RankingController.mostrarRankings);
+app.get("/ranking/:nickname", RankingController.mostrarPontuacaoByNickname);
 
-app.listen(3000, () => console.log(`Example app listening on port 3000`));
+const port = 3000;
+app.listen(port, () => console.log(`Example app listening on port ${port}`));
